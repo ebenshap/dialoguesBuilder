@@ -1,23 +1,60 @@
  @import url(bootstrap.css) screen;
-  
+
  body {
-        padding-top: 60px;
+        padding-top: 42px;
         padding-bottom: 40px;
       }
 
 .sidebar-nav {
   padding: 9px 0;
 }
-
-@media (max-width: 980px) {	 
+#builder .row-fluid{
+  padding-top:40px;
+}
+@media (max-width: 980px) {
 
 	.navbar-text.pull-right {
 	    float: none;
 	    padding-left: 5px;
 	    padding-right: 5px;
-	  }	 
+	  }
 }
 
 table td:last-child{
 	text-align:right;
+}
+
+.ng-hide{
+  display: none;
+}
+
+#actorList{
+  display:inline;
+  width: 400px;
+}
+
+#actorList input{
+  margin-bottom: 0;
+  margin-left: 5px;
+}
+
+#creationStation{
+
+  position:fixed;
+  z-index: 2;
+}
+
+.row-fluid.ng-scope{
+  position: relative;
+    top: 39px;
+    z-index: 1;
+}
+
+.well{
+  padding:0 10px;
+}
+
+.well h3 {
+    font-size: 20.5px;
+    margin: 0;
 }

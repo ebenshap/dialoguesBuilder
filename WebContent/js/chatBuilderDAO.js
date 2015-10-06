@@ -10,27 +10,31 @@ ChatBuilderDAO = {
 
   settings: {
     DATA_KEY: "cz.kibo.chatbuilder",
-    BOOT_DATA:{"actors":[{"id":10,"name":"John"},{"id":20,"name":"Emily"}],"dialogues":[{"id":10,"parent":null,"isChoice":false,"actor":10,"conversant":20,"menuText":"","dialogueText":"Where is the cave?","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinks":[20]},{"id":20,"parent":10,"isChoice":false,"actor":20,"conversant":10,"menuText":"","dialogueText":"Outside the village.","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinks":[30]},{"id":30,"parent":20,"isChoice":true,"conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinks":[40,50]},{"id":40,"parent":30,"isChoice":false,"actor":10,"conversant":20,"menuText":"Ask about cave.","dialogueText":"What do you know about the cave?","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinks":[41]},{"id":50,"parent":30,"isChoice":false,"actor":10,"conversant":20,"menuText":"Leave","dialogueText":"Good by.","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinks":[]},{"id":41,"parent":40,"isChoice":false,"actor":20,"conversant":10,"menuText":"","dialogueText":"People is losing there.","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinks":[30]}]},
-    PURE_DATA:{"actors":[{"id":10,"name":"John"},{"id":20,"name":"Emily"}],"dialogues":[]},
+    BOOT_DATA:{"actors":[{"id":10,"name":"John"},{"id":20,"name":"Emily"}],"dialogues":[{"id":10,"parent":null,"isChoice":false,"actor":10,"conversant":20,"menuText":"","dialogueText":"Where is the cave?","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinkLinks":[20]},{"id":20,"parent":10,"isChoice":false,"actor":20,"conversant":10,"menuText":"","dialogueText":"Outside the village.","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinkLinks":[30]},{"id":30,"parent":20,"isChoice":true,"conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinkLinks":[40,50]},{"id":40,"parent":30,"isChoice":false,"actor":10,"conversant":20,"menuText":"Ask about cave.","dialogueText":"What do you know about the cave?","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinkLinks":[41]},{"id":50,"parent":30,"isChoice":false,"actor":10,"conversant":20,"menuText":"Leave","dialogueText":"Good by.","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinkLinks":[]},{"id":41,"parent":40,"isChoice":false,"actor":20,"conversant":10,"menuText":"","dialogueText":"People is losing there.","conditionsString":"","codeBefore":"","codeAfter":"","outgoingLinks":[30]}]},
+    PURE_DATA:{"actors":[],"dialogues":[]},
     DIALOGUES_COLLECTION_NAME:"dialogues",
 	ACTORS_COLLECTION_NAME:"actors"
   },
 
-  init: function() {   
+  init: function(doBoot) {   
     s = this.settings;  
-    this.boot();
+   if(doBoot){
+      this.boot();
+    }
     return this;
   },
       
   /**
-   * Insert or update Actor object
+   * Insert or update
+   
+   Actor object
    * If object with ID exists, it will be rewrite.
    *
-   * @method inserOrUpdateActor 
+   * @method insertOrUpdateActor 
    * @param {Object} artist
    */
-  inserOrUpdateActor:function( actor ){
-	  return this.inserOrUpdate(this.settings.ACTORS_COLLECTION_NAME, actor);	  	   
+  insertOrUpdateActor:function( actor ){
+	  return this.insertOrUpdate(this.settings.ACTORS_COLLECTION_NAME, actor);	  	   
   },
     
   /**
@@ -79,11 +83,11 @@ ChatBuilderDAO = {
    * Insert or update Dialog object
    * If object with ID exists, it will be rewrite.
    *
-   * @method inserOrRemoveDialog
+   * @method insertOrRemoveDialog
    * @param {Object} dialog
    */
-  inserOrUpdateDialog:function( dialog ){
-	 return this.inserOrUpdate(this.settings.DIALOGUES_COLLECTION_NAME, dialog);	  	  	
+  insertOrUpdateDialog:function( dialog ){
+    return this.insertOrUpdate(this.settings.DIALOGUES_COLLECTION_NAME, dialog);	  	  	
   },
   
   /**
@@ -160,17 +164,64 @@ ChatBuilderDAO = {
    * @param {String} collectionName
    * @param {Object} object
    */
-  inserOrUpdate:function( collectionName, obj){
-	  var data = this.getData();
-	  var index = this.getIndexOf(collectionName, obj.id);	
-	  if(index != null){		  
-		  //Update
-		  data[collectionName][index] = obj;
-	  }else{		  
-		  //Insert
-		  data[collectionName].push(obj);  
-	  }
-	  this.setData(data);	
+  insertOrUpdate:function( collectionName, obj){
+    var data = this.getData();
+   
+    var index = this.getIndexOf(collectionName, obj.id);	
+    if(index != null){		  
+      //Update
+    if(obj.outgoingLinkLinks && data[collectionName][index]['outgoingLinkLinks']){
+        obj.outgoingLinkLinks = _.union( data[collectionName][index]['outgoingLinkLinks'], obj.outgoingLinkLinks);
+     } 
+     
+      var outgoingOrig;
+      var carryOverOrig=0;
+      if('outgoingLinks' in obj){
+        carryOverOrig = 1;
+        outgoingOrig = _.clone(obj.outgoingLinks);
+      }
+      
+      var result = joint.util.deepSupplement(  obj, data[collectionName][index]);
+      
+      if(carryOverOrig){
+        result.outgoingLinks = outgoingOrig;
+      }
+      
+      data[collectionName][index] = result;
+    }else{		  
+      //Insert
+      data[collectionName].push(obj);  
+    }
+    this.setData(data);	
+  },
+  
+  removeOutgoingLinkLinks: function(linkId, removeId){
+    var collectionName = this.settings.DIALOGUES_COLLECTION_NAME;
+    var index = this.getIndexOf(collectionName, linkId);	
+    
+    if(index != null){
+     
+      var data = this.getData();
+     
+      if(data[collectionName][index]['outgoingLinkLinks']){
+        data[collectionName][index]['outgoingLinkLinks'] =  _.filter(
+          data[collectionName][index]['outgoingLinkLinks'], 
+          function(num){
+            return num != removeId;
+          });
+       this.setData(data);
+     }
+    }
+  },
+  
+  removeParent:function(linkId){
+    var collectionName = this.settings.DIALOGUES_COLLECTION_NAME;
+    var index = this.getIndexOf(collectionName, linkId);	
+    if(index != null){
+      var data = this.getData();
+      data[collectionName][index]['parent'] = null;
+      this.setData(data);
+    }
   },
   
   /*
@@ -234,6 +285,7 @@ ChatBuilderDAO = {
    * @throw {Error} localStorage is not supported 
    */
   boot:function(){
+
 	  if(!this.isLocalStorageSupported()){
  		  throw new Error("LocalStorage is not supported.");
  	  }

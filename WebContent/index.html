@@ -1,14 +1,35 @@
 <!DOCTYPE html>
 <html ng-app="DAOModule">
-  <head>          
+  <head>
     <meta charset="utf-8">
     <title>Chat Builder</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Tool for creating dialogs for video games.">             
-    <link href="css/application.css" rel="stylesheet" media="screen">       
+    <meta name="description" content="Tool for creating dialogs for video games.">
+    <link href="css/application.css" rel="stylesheet" media="screen">
+    <link href='css/joint.css' rel="stylesheet" type="text/css" >
+    <style>
+#paper body{
+padding:0;
+}
+
+foreignObject body div{
+ // background:green;
+  color:black;
+}
+
+.element .fobj div {
+  padding: 0 5px;
+  vertical-align: top;
+}
+
+svg{
+  border:black 1px solid;
+}
+
+    </style>
   </head>
   <body ng:controller="BuilderController">
-        
+
   <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
          <div class="container-fluid">
@@ -19,35 +40,43 @@
           </button>
           <a class="brand" href="#builder">Dialogues builder for video games</a>
           <div class="nav-collapse collapse">
-            <ul class="nav">	            	                                     
-            	<li><a href="#builder">Builder</a></li> 
+            <ul class="nav">
+            	<li><a href="#builder">Builder</a></li>
               	<li><a href="#builder" ng-click="clear()">New chat</a></li>
 				<li><a href="#export">Export</a></li>
+				<li><a href="#exportFinal">Export Final</a></li>
 				<li><a href="#import">Import</a></li>
             </ul>
-            
-             <ul class="nav pull-right">             	                                  
-              <li><a href="#documentation">Documentation</a></li>              
+
+             <ul class="nav pull-right">
+              <li><a href="#documentation">Documentation</a></li>
               <li><a href="#contact">Contact</a></li>
              </ul>
-            
+
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
-        
-    <div class="container-fluid">      
-    	<div ng-view></div>       	    	     
+
+    <div class="container-fluid">
+         <div ng-include  src="'tpl/builder.html'"></div>
+    	<div ng-view></div>
   	</div> <!-- class="container-fluid" -->
-  	
-  	<script type='text/javascript' src='https://www.google.com/jsapi'></script>
-    <script type='text/javascript'>
-    	google.load('visualization', '1', {packages:['orgchart']});    	
-    </script>
-  	
-  	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.4/angular.min.js"></script>
-  	<script src="js/chatBuilderDAO.js"></script>  	
+  	<script src="js/zeroclipboard/ZeroClipboard.js"></script>
+  	<script src="js/angular.js"></script>
+    <script src="js/angular-route.js"></script>
+  	<script src="js/chatBuilderDAO.js"></script>
+     <script src='js/joint/joint.js' ></script>
+<!--  <script src='js/joint/joint.shapes.org.js' ></script>  -->
+  <script src='js/joint/joint.shapes.devs.js' ></script>
+  
+    <script src="js/joint/graphlib.js"></script>
+    <script src="js/joint/dagre.js"></script>
+        <script src="js/joint/joint.layout.DirectedGraph.js"></script>
+<!-- dragscroll will be loaded dynamically instead-->
+ <!-- <script src="js/dragscroll.js"></script> -->
     <script src="js/angular/script.js"></script>
-                                                     
+
+
   </body>
 </html>
