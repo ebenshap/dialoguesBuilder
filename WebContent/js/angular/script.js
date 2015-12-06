@@ -179,6 +179,11 @@ myApp.controller('BuilderController', function($scope, dao, $location) {
    return m1;
  }
  
+  $scope.save=function(json){
+    console.log('hellllooo???')
+    console.log(json);
+  }
+ 
  $scope.resizeBox = function(obj){
  
     var foreignObject = obj.findView(paper).$el.find('foreignObject');
@@ -506,7 +511,9 @@ function getChatIds(link){
       })
       if(doAdjustment){
         var curHeight = paper.$el.find('svg').height();
+        var curWidth = paper.$el.find('svg').width();
         paper.$el.find('svg').height(curHeight+400);
+        paper.$el.find('svg').width(curWidth+200);
         joint.layout.DirectedGraph.layout(graph, { 
           setLinkVertices: false, 
           marginY:90,
@@ -767,10 +774,44 @@ function getChatIds(link){
 });
 
 myApp.controller('ExportController', function($scope, $routeParams, dao) {
+  var client = new ZeroClipboard( document.getElementById("copy-button") );
+
+  client.on( "ready", function( readyEvent ) {
+    // alert( "ZeroClipboard SWF is ready!" );
+    
+    client.on( "beforecopy", function( event ) {
+      var code = $('pre.ng-binding').html();
+      $('#copy-button').attr('data-clipboard-text', code)
+    } );
+    
+    client.on( "aftercopy", function( event ) {
+      
+    } );
+  } );
   var data = dao.getData();
   data.dialogues.sort(function(a, b) {return a.id - b.id;});
   $scope.source = JSON.stringify(data, null, "\t");
 });
+
+
+myApp.controller('ImportController', function($scope, $routeParams, dao) {
+  $scope.save=function(json){
+   
+    blobObj=json.files.item(0);
+   
+    fileReader = new FileReader();
+    fileReader.readAsText(blobObj)
+    fileReader.onloadend =function(){
+      blobresult = fileReader.result;
+      console.log(blobresult)
+      localStorage["cz.kibo.chatbuilder"] = blobresult
+      console.log(location.href.replace(/\#\/builder/, ''))
+      window.location=location.href.replace(/\#\/.*/, '')
+    //  location.reload();
+    }
+  }
+});
+
 
 myApp.controller('ExportFinalController', function($scope, $routeParams, dao) {
 
